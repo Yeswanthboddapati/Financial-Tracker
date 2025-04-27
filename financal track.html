@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>Financial Tracker</title>
+  <style>
+    body {
+      font-family:cursive;
+      padding: 20px;
+      background: #f4f4f9;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    .summary {
+      margin-bottom: 20px;
+      padding: 20px;
+      background: #fff;
+      border-radius: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background: #fff;
+      border-radius: 5px;
+    }
+    th,
+    td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f8f8f8;
+    }
+    .income {
+      color: green;
+    }
+    .expense {
+      color: red;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input,
+    select,
+    button {
+      margin: 5px 0;
+      padding: 10px;
+      width: 100%;
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+  body {
+    background: #e8f5e9;
+  }
+
+  th {
+    background-color: #c8e6c9;
+  }
+
+  .summary {
+    background: #f1f8e9;
+  }
+}
+
+/* Laptops (901px to 1200px) */
+@media (min-width: 901px) and (max-width: 1200px) {
+  body {
+    background: #fff3e0;
+  }
+
+  th {
+    background-color: #ffe0b2;
+  }
+
+  .summary {
+    background: #fff8e1;
+  }
+}
+
+/* Desktops (1201px and above) */
+@media (min-width: 1201px) {
+  body {
+    background: #ede7f6;
+  }
+
+  th {
+    background-color: #d1c4e9;
+  }
+
+  .summary {
+    background: #f3e5f5;
+  }
+}
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Personal Financial Tracker</h1>
+    <div class="summary">
+      <h3>Total Balance: $<span id="balance">0</span></h3>
+      <p>Income: $<span id="income">0</span></p>
+      <p>Expenses: $<span id="expenses">0</span></p>
+    </div>
+    <form id="transaction-form">
+      <h3>Add Transaction</h3>
+      <input type="text" id="description" placeholder="Description" required />
+      <input type="number" id="amount" placeholder="Amount" required />
+      <select id="category">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <button type="submit">Add Transaction</button>
+    </form>
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Category</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="transaction-table-body">
+        <!-- Transactions will be dynamically added here-->
+      </tbody>
+    </table>
+  </div>
+  <script>
+    let transactions = [];
+    const balanceEl = document.getElementById("balance");
+    const incomeEl = document.getElementById("income");
+    const expensesEl = document.getElementById("expenses");
+    const transactionTableBody = document.getElementById("transaction-table-body");
+    const form = document.getElementById("transaction-form");
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const description = document.getElementById("description").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+      const category = document.getElementById("category").value;
+      const transaction = {
+        id: Date.now(),
+        description,
+        amount,
+        category,
+      };
+      console.log(transaction)
+      transactions.push(transaction);
+      updateUI();
+      form.reset();
+    });
+    function updateUI() {
+      // Calculate totals
+      const income = transactions
+        .filter((t) => t.category === "income")
+        .reduce((acc, t) => acc + t.amount, 0);
+      const expenses = transactions
+        .filter((t) => t.category === "expense")
+        .reduce((acc, t) => acc + t.amount, 0);
+      const balance = income - expenses;
+      balanceEl.textContent = balance.toFixed(2);
+      incomeEl.textContent = income.toFixed(2);
+      expensesEl.textContent = expenses.toFixed(2);
+      // Update transaction table
+      transactionTableBody.innerHTML = transactions
+        .map(
+          (t) => `
+          <tr>
+            <td>${t.description}</td>
+            <td>${t.amount.toFixed(2)}</td>
+            <td class="${t.category === "income" ? "income" : "expense"}">
+                ${t.category.charAt(0).toUpperCase() + t.category.slice(1)}
+            </td>
+            <td>
+              <button onclick="deleteTransaction(${t.id})">Delete</button>
+            </td>
+          </tr>`
+        )
+        .join("");
+    }
+    function deleteTransaction(id) {
+    transactions = transactions.filter((t) => t.id !== id);
+    updateUI();
+ }
+    </script>
+  </body >
+</html >
